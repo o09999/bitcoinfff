@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Прогноз</title>
+</head>
+<body>
+    <h1>Прогноз цены биткоина</h1>
+
+    <label>Введите количество дней:</label>
+    <input type="number" id="days" value="7">
+
+    <button id="getPrediction">Получить прогноз</button>
+
+    <ul id="result"></ul>
+
+    <script>
+        async function getPrediction() {
+            let days = document.getElementById("days").value;
+
+            try {
+                let response = await fetch(`http://127.0.0.1:5000/predict/${days}`);
+
+                if (!response.ok) {
+                    throw new Error("Ошибка сервера!");
+                }
+
+                let data = await response.json();
+                let resultList = document.getElementById("result");
+                resultList.innerHTML = "";
+
+                data.predictions.forEach(([date, price]) => {
+                    let li = document.createElement("li");
+                    li.innerText = `${date}: $${price.toFixed(2)}`;
+                    resultList.appendChild(li);
+                });
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        document.getElementById("getPrediction").addEventListener("click", getPrediction);
+    </script>
+</body>
+</html>
