@@ -8,16 +8,10 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM
 
 app = Flask(__name__)
-from flask_cors import CORS
-
-app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})  # Разрешаем все источники
-
-
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 cg = CoinGeckoAPI()
 
-# Функция для загрузки данных
 def get_bitcoin_data(days=365):
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days)
@@ -28,7 +22,6 @@ def get_bitcoin_data(days=365):
     )
     return [x[1] for x in data['prices']]
 
-# Функция для создания набора данных
 def create_dataset(data, time_step=60):
     X, y = [], []
     for i in range(len(data) - time_step - 1):
@@ -41,7 +34,7 @@ prices = np.array(get_bitcoin_data()).reshape(-1, 1)
 scaler = MinMaxScaler(feature_range=(0, 1))
 scaled_prices = scaler.fit_transform(prices)
 
-# Создание модели LSTM
+# Модель LSTM
 time_step = 60
 X, y = create_dataset(scaled_prices, time_step)
 X = X.reshape(X.shape[0], X.shape[1], 1)
@@ -54,9 +47,8 @@ model = Sequential([
 ])
 
 model.compile(optimizer='adam', loss='mean_squared_error')
-model.fit(X, y, epochs=50, batch_size=64, verbose=1)
+model.fit(X, y, epochs=60, batch_size=64, verbose=1)
 
-# API для предсказания (GET-запрос)
 @app.route('/predict/<int:days>', methods=['GET'])
 def predict_get(days):
     predictions = []
@@ -74,23 +66,18 @@ def predict_get(days):
         "predictions": [(str(date), float(price)) for date, price in zip(future_dates, predictions)]
     })
 
+@app.route('/predict', methods=['POST'])
+def predict_post():
+    data = request.get_json()
+    if not data or 'days' not in data:
+        return jsonify({"error": "Invalid input"}), 400
 
-# API для предсказания (POST-запрос)
-    @app.route('/predict', methods=['POST'])
-    def predict_post():
-        data = request.get_json()
-        if not data or 'days' not in data:
-            return jsonify({"error": "Invalid input"}), 400
+    days = int(data['days'])
+    return predict_get(days)
 
-        days = int(data['days'])
-        return predict_get(days)
-
-    return jsonify(prediction)
-
-# Главная страница
 @app.route('/')
 def home():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

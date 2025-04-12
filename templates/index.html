@@ -2,46 +2,136 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitcoin Прогноз</title>
-</head>
-<body>
-    <h1>Прогноз цены биткоина</h1>
-
-    <label>Введите количество дней:</label>
-    <input type="number" id="days" value="7">
-
-    <button id="getPrediction">Получить прогноз</button>
-
-    <ul id="result"></ul>
-
-    <script>
-        async function getPrediction() {
-            let days = document.getElementById("days").value;
-
-            try {
-                let response = await fetch(`http://127.0.0.1:5000/predict/${days}`);
-
-                if (!response.ok) {
-                    throw new Error("Ошибка сервера!");
-                }
-
-                let data = await response.json();
-                let resultList = document.getElementById("result");
-                resultList.innerHTML = "";
-
-                data.predictions.forEach(([date, price]) => {
-                    let li = document.createElement("li");
-                    li.innerText = `${date}: $${price.toFixed(2)}`;
-                    resultList.appendChild(li);
-                });
-
-            } catch (error) {
-                alert(error.message);
-            }
+    <title>Прогноз цены Bitcoin</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        document.getElementById("getPrediction").addEventListener("click", getPrediction);
+        html, body {
+            height: 100%;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-theme {
+            background-color: #1e1e1e;
+            color: #f0e8d9;
+        }
+
+        body.light-theme {
+            background-color: #fdfdfd;
+            color: #222;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        #theme-toggle {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 24px;
+            user-select: none;
+        }
+
+        ul {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        ul li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <div id="theme-toggle">🌙</div>
+
+    <div class="container">
+        <h1>Прогноз цены Bitcoin</h1>
+        <input type="number" id="days" placeholder="Введите количество дней">
+        <button class="btn-success" onclick="getPrediction()">Получить прогноз</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        // Сохранение темы между перезагрузками
+        if (localStorage.getItem("theme") === "light") {
+            body.classList.remove("dark-theme");
+            body.classList.add("light-theme");
+            themeToggle.textContent = "☀️";
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-theme');
+            body.classList.toggle('light-theme');
+            const isDark = body.classList.contains('dark-theme');
+            themeToggle.textContent = isDark ? '🌙' : '☀️';
+            localStorage.setItem("theme", isDark ? "dark" : "light");
+        });
+
+        async function getPrediction() {
+            const days = document.getElementById('days').value;
+            const result = document.getElementById('result');
+            result.innerHTML = 'Загрузка...';
+
+            try {
+                const response = await fetch(`/predict/${days}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    result.innerHTML = `<p class="btn-error">Ошибка: ${data.error}</p>`;
+                } else {
+                    const list = data.predictions.map(([date, price]) => `<li>${date}: $${price.toFixed(2)}</li>`).join('');
+                    result.innerHTML = `<ul>${list}</ul>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="btn-error">Ошибка: ${error.message}</p>`;
+            }
+        }
     </script>
 </body>
 </html>
