@@ -1,202 +1,252 @@
-<!DOCTYPE html>
-<html lang="ru" data-theme="dark">
+<!DOCTYPE ht<!DOCTYPE html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Crypto Forecast</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css">
   <style>
-    :root {
-      --dark-bg: #1e1e1e;
-      --light-bg: #f2f2f2;
-      --ton-color: #00bfff;
-      --btc-color: #f2b400;
-      --eth-color: #9b59b6;
-      --usdt-color: #2ecc71;
-    }
-
     body {
-      background-color: var(--dark-bg);
-      color: white;
-      transition: background-color 0.5s ease, color 0.5s ease;
-      font-family: 'Segoe UI', sans-serif;
-      min-height: 100vh;
       margin: 0;
-      padding: 0;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      transition: all 0.3s ease;
     }
 
-    [data-theme="light"] body {
-      background-color: var(--light-bg);
-      color: #111;
+    :root {
+      --bg: #f0f0f0;
+      --text: #111;
+      --card: #ffffff;
     }
 
-    .fade-in {
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeIn 1s ease forwards;
+    .dark {
+      --bg: #1e1e1e;
+      --text: #f0f0f0;
+      --card: #2c2c2c;
     }
 
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .crypto-title {
-      font-size: 2rem;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .crypto-select {
-      display: none;
-    }
-
-    .crypto-title.ton { color: var(--ton-color); }
-    .crypto-title.bitcoin { color: var(--btc-color); }
-    .crypto-title.ethereum { color: var(--eth-color); }
-    .crypto-title.usdt { color: var(--usdt-color); }
-
-    .form-container {
+    .container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 15px;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .form-wrapper {
+      background-color: var(--card);
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      width: 320px;
+      transition: all 0.5s ease;
+    }
+
+    .form-wrapper.shifted {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      width: 280px;
+      padding: 1rem;
+    }
+
+    .form-wrapper select, .form-wrapper input, .form-wrapper button {
       width: 100%;
-      max-width: 300px;
-      margin-top: 20px;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
     }
 
-    .btn-submit {
+    button#getForecast {
       background-color: #28a745;
       color: white;
-      border: none;
-    }
-
-    .error-message {
-      color: #ff4d4f;
-      font-weight: bold;
-      margin-top: 10px;
-      display: none;
+      cursor: pointer;
     }
 
     .theme-toggle {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.5rem;
       cursor: pointer;
     }
 
-    #forecastBox {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background-color: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 15px;
-      border-radius: 10px;
-      max-width: 300px;
-      font-size: 0.9rem;
-      display: none;
-      z-index: 999;
-      backdrop-filter: blur(8px);
+    .crypto-header-wrapper {
+      position: relative;
     }
 
-    [data-theme="light"] #forecastBox {
-      background-color: rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(0, 0, 0, 0.1);
+    .crypto-header {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      text-align: center;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      transition: background 0.3s ease;
     }
+
+    .crypto-dropdown {
+      display: none;
+      position: absolute;
+      background-color: var(--card);
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      left: 0;
+      z-index: 10;
+    }
+
+    .crypto-dropdown.show {
+      display: block;
+    }
+
+    .crypto-dropdown div {
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+
+    .crypto-dropdown div:hover {
+      background-color: rgba(0,0,0,0.05);
+    }
+
+    .forecast {
+      background: white;
+      color: black;
+      border-radius: 1.5rem;
+      padding: 2rem;
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 1.2rem;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .error {
+      color: red;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    .loader {
+      display: none;
+      margin-top: 1rem;
+    }
+
+    .loader.show {
+      display: block;
+    }
+
+    .crypto-yellow { color: #f2a900; }
+    .crypto-green { color: #26a17b; }
+    .crypto-blue { color: #005aff; }
+    .crypto-purple { color: #8e44ad; }
   </style>
 </head>
 <body>
-  <div class="theme-toggle">🌗</div>
+  <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-adjust"></i></button>
 
-  <div id="forecastBox"></div>
+  <div class="container">
+    <div id="form" class="form-wrapper">
+      <div class="crypto-header-wrapper">
+        <div id="cryptoTitle" class="crypto-header crypto-yellow" onclick="toggleDropdown()">Bitcoin</div>
+        <div id="cryptoDropdown" class="crypto-dropdown">
+          <div data-value="bitcoin">Bitcoin</div>
+          <div data-value="ethereum">Ethereum</div>
+          <div data-value="usdt">USDT</div>
+          <div data-value="ton">TON</div>
+        </div>
+      </div>
 
-  <div class="text-center fade-in">
-    <div id="cryptoTitle" class="crypto-title ton">TON ▼</div>
-    <select id="cryptoSelect" class="form-select crypto-select mt-2">
-      <option value="ton">TON</option>
-      <option value="bitcoin">Bitcoin</option>
-      <option value="ethereum">Ethereum</option>
-      <option value="usdt">USDT</option>
-    </select>
-
-    <div class="form-container fade-in" style="animation-delay: .3s">
-      <input type="number" id="daysInput" class="form-control" placeholder="Количество дней" />
-      <button class="btn btn-submit fade-in" id="predictBtn" style="animation-delay: .6s">Получить прогноз</button>
-      <div id="errorMessage" class="error-message">Произошла ошибка. Попробуйте ещё раз.</div>
+      <select id="currency">
+        <option value="usd">$ USD</option>
+        <option value="rub">₽ RUB</option>
+        <option value="kzt">₸ KZT</option>
+        <option value="eur">€ EUR</option>
+        <option value="byn">Br BYN</option>
+        <option value="uah">₴ UAH</option>
+        <option value="chf">₣ CHF</option>
+        <option value="gbp">£ GBP</option>
+      </select>
+      <input type="number" id="days" placeholder="Количество дней" min="1" max="30"/>
+      <button id="getForecast">Получить прогноз</button>
+      <div class="loader" id="loader">⏳ Загрузка...</div>
+      <div class="error" id="error"></div>
     </div>
+
+    <div class="forecast" id="forecastBox" style="display:none;"></div>
   </div>
 
   <script>
-    const themeToggle = document.querySelector(".theme-toggle");
-    const html = document.documentElement;
-    const cryptoTitle = document.getElementById("cryptoTitle");
-    const cryptoSelect = document.getElementById("cryptoSelect");
-    const predictBtn = document.getElementById("predictBtn");
-    const daysInput = document.getElementById("daysInput");
-    const errorMessage = document.getElementById("errorMessage");
-    const forecastBox = document.getElementById("forecastBox");
+    let currentCrypto = "bitcoin";
 
-    const colorMap = {
-      ton: "ton",
-      bitcoin: "bitcoin",
-      ethereum: "ethereum",
-      usdt: "usdt"
-    };
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+    }
 
-    themeToggle.onclick = () => {
-      html.dataset.theme = html.dataset.theme === "dark" ? "light" : "dark";
-    };
+    function toggleDropdown() {
+      document.getElementById("cryptoDropdown").classList.toggle("show");
+    }
 
-    cryptoTitle.onclick = () => {
-      cryptoSelect.style.display = cryptoSelect.style.display === "block" ? "none" : "block";
-    };
+    function setCrypto(value) {
+      currentCrypto = value;
+      const title = document.getElementById("cryptoTitle");
+      const colorMap = {
+        bitcoin: "crypto-yellow",
+        ethereum: "crypto-purple",
+        usdt: "crypto-green",
+        ton: "crypto-blue"
+      };
+      title.textContent = value.charAt(0).toUpperCase() + value.slice(1);
+      title.className = "crypto-header " + colorMap[value];
+      toggleDropdown();
+    }
 
-    cryptoSelect.onchange = () => {
-      const coin = cryptoSelect.value;
-      cryptoTitle.textContent = coin.toUpperCase() + " ▼";
-      cryptoTitle.className = "crypto-title " + colorMap[coin];
-      cryptoSelect.style.display = "none";
-    };
+    document.querySelectorAll("#cryptoDropdown div").forEach(el => {
+      el.addEventListener("click", () => setCrypto(el.dataset.value));
+    });
 
-    predictBtn.onclick = async () => {
-      const coin = cryptoSelect.value;
-      const days = daysInput.value;
-      errorMessage.style.display = "none";
+    document.getElementById("getForecast").addEventListener("click", async () => {
+      const currency = document.getElementById("currency").value;
+      const days = document.getElementById("days").value;
+      const loader = document.getElementById("loader");
+      const errorBox = document.getElementById("error");
+      const forecastBox = document.getElementById("forecastBox");
+      const form = document.getElementById("form");
+
+      errorBox.textContent = "";
       forecastBox.style.display = "none";
-      forecastBox.innerHTML = "";
-
-      if (!days || isNaN(days) || days <= 0) {
-        errorMessage.textContent = "Введите корректное количество дней";
-        errorMessage.style.display = "block";
-        return;
-      }
+      loader.classList.add("show");
 
       try {
-        const response = await fetch(`/predict/${coin}/${days}`);
-        const data = await response.json();
+        const res = await fetch(`/predict/${currentCrypto}/${days}?currency=${currency}`);
+        const data = await res.json();
 
-        if (response.ok) {
-          forecastBox.innerHTML = `<h6>Прогноз для ${coin.toUpperCase()}:</h6><ul class="mt-2">` +
-            data.predictions.map(([date, price]) => `<li>${date}: <strong>${price.toFixed(2)} USD</strong></li>`).join("") +
-            "</ul>";
-          forecastBox.style.display = "block";
+        if (data.error) {
+          errorBox.textContent = data.error;
         } else {
-          throw new Error(data.error || "Ошибка при получении данных");
+          let html = `<h2>Прогноз (${data.currency})</h2><ul style="list-style:none;padding:0;">`;
+          data.predictions.forEach(([date, price]) => {
+            html += `<li><strong>${date}:</strong> ${price} ${data.currency}</li>`;
+          });
+          html += "</ul>";
+          forecastBox.innerHTML = html;
+          forecastBox.style.display = "block";
+          form.classList.add("shifted");
         }
       } catch (err) {
-        errorMessage.textContent = err.message;
-        errorMessage.style.display = "block";
+        errorBox.textContent = "Ошибка запроса: " + err.message;
+      } finally {
+        loader.classList.remove("show");
       }
-    };
+    });
   </script>
 </body>
 </html>
