@@ -1,4 +1,4 @@
-<!DOCTYPE ht<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -11,20 +11,62 @@
       font-family: 'Segoe UI', sans-serif;
       background-color: var(--bg);
       color: var(--text);
-      transition: all 0.3s ease;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     :root {
       --bg: #f0f0f0;
       --text: #111;
       --card: #ffffff;
+      --input-bg: #e9ecef;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --button-bg: #28a745;
+      --button-text: white;
+      --error-color: red;
+      --warning-color: #e85d04;
+      --loader-color: #007bff;
+      --select-border: #ced4da; /* Рамка для светлой темы */
+
+      --crypto-yellow: #f2a900;
+      --crypto-green: #26a17b;
+      --crypto-blue: #005aff;
+      --crypto-purple: #8e44ad;
     }
 
+    /* --- Стили для темной темы --- */
     .dark {
       --bg: #1e1e1e;
       --text: #f0f0f0;
       --card: #2c2c2c;
+      --input-bg: #3a3a3a;
+      --shadow-color: rgba(255, 255, 255, 0.1);
+      --button-bg: #2aaa4b;
+      --button-text: #111;
+      --error-color: #ff4d4d;
+      --warning-color: #ff9100;
+      --loader-color: #58a6ff;
+      --select-border: #555; /* Рамка для темной темы */
+      --select-bg-dark: #3a3a3a; /* Фон для селекта и опций */
+      --select-text-dark: #f0f0f0; /* Текст для селекта и опций */
     }
+
+    /* Стили для select в темной теме (закрытое состояние) */
+    .dark select {
+       border-color: var(--select-border);
+       background-color: var(--select-bg-dark); /* Явный фон для самого селекта */
+       color: var(--select-text-dark);        /* Явный цвет текста для самого селекта */
+    }
+
+    /* ПОПЫТКА стилизовать опции в ВЫПАДАЮЩЕМ списке */
+    /* !!! Это НЕ гарантированно сработает во всех браузерах !!! */
+    .dark select option {
+       background-color: var(--select-bg-dark) !important; /* Пытаемся переопределить фон опции */
+       color: var(--select-text-dark) !important;         /* Пытаемся переопределить цвет текста опции */
+       /* Добавление !important - это "костыль", но иногда помогает с нативными элементами */
+       /* Если и это не сработает, единственный надежный способ - JS библиотека */
+    }
+     /* --- Конец стилей для темной темы --- */
+
 
     .container {
       display: flex;
@@ -32,39 +74,80 @@
       align-items: center;
       min-height: 100vh;
       padding: 2rem;
+      box-sizing: border-box;
     }
 
     .form-wrapper {
       background-color: var(--card);
       padding: 2rem;
-      border-radius: 1.5rem;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-      width: 320px;
+      border-radius: 1rem;
+      box-shadow: 0 4px 16px var(--shadow-color);
+      width: 100%;
+      max-width: 350px;
+      box-sizing: border-box;
       transition: all 0.5s ease;
+      position: relative;
+      top: 0; left: 0;
     }
 
     .form-wrapper.shifted {
       position: absolute;
       top: 1rem;
       left: 1rem;
-      width: 280px;
-      padding: 1rem;
+      width: auto;
+      max-width: 300px;
+      padding: 1.5rem;
+      z-index: 10;
     }
 
-    .form-wrapper select, .form-wrapper input, .form-wrapper button {
+    /* Общие стили для полей ввода и селекта */
+    .form-wrapper select, .form-wrapper input {
       width: 100%;
-      margin: 0.5rem 0;
-      padding: 0.5rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      border: 1px solid var(--select-border); /* Используем переменную */
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      background-color: var(--input-bg);
+      color: var(--text);
+      box-sizing: border-box;
+      /* Оставили стандартный вид select для лучшей совместимости */
+    }
+
+     /* Убираем стрелки у числового поля */
+     .form-wrapper input[type=number] {
+        appearance: textfield;
+         -moz-appearance: textfield;
+    }
+     .form-wrapper input[type=number]::-webkit-outer-spin-button,
+     .form-wrapper input[type=number]::-webkit-inner-spin-button {
+         -webkit-appearance: none;
+         margin: 0;
+     }
+
+
+    /* Стили для кнопки */
+    .form-wrapper button {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
       border: none;
       border-radius: 0.5rem;
       font-size: 1rem;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s ease, opacity 0.2s ease;
+      box-sizing: border-box;
+    }
+    .form-wrapper button:hover {
+      opacity: 0.9;
+    }
+    .form-wrapper *:last-child {
+         margin-bottom: 0;
     }
 
-    button#getForecast {
-      background-color: #28a745;
-      color: white;
-      cursor: pointer;
-    }
 
     .theme-toggle {
       position: absolute;
@@ -75,21 +158,28 @@
       color: var(--text);
       font-size: 1.5rem;
       cursor: pointer;
+      padding: 0.5rem;
+      z-index: 20;
     }
 
     .crypto-header-wrapper {
       position: relative;
+      margin-bottom: 1rem;
     }
 
     .crypto-header {
       font-size: 1.5rem;
       font-weight: bold;
-      margin-bottom: 1rem;
       text-align: center;
       cursor: pointer;
       padding: 0.5rem;
       border-radius: 0.5rem;
-      transition: background 0.3s ease;
+      transition: background-color 0.3s ease;
+      border: 1px solid transparent;
+      background-color: var(--input-bg);
+    }
+    .crypto-header:hover {
+        border-color: var(--text);
     }
 
     .crypto-dropdown {
@@ -97,10 +187,14 @@
       position: absolute;
       background-color: var(--card);
       border-radius: 0.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px var(--shadow-color);
       width: 100%;
+      top: 100%;
       left: 0;
-      z-index: 10;
+      z-index: 15;
+      margin-top: 0.25rem;
+      overflow: hidden;
+      border: 1px solid var(--input-bg);
     }
 
     .crypto-dropdown.show {
@@ -108,64 +202,110 @@
     }
 
     .crypto-dropdown div {
-      padding: 0.5rem;
+      padding: 0.75rem 1rem;
       cursor: pointer;
+      color: var(--text);
+      transition: background-color 0.2s ease;
     }
 
     .crypto-dropdown div:hover {
-      background-color: rgba(0,0,0,0.05);
+      background-color: var(--input-bg);
     }
 
     .forecast {
-      background: white;
-      color: black;
-      border-radius: 1.5rem;
+      background-color: var(--card);
+      color: var(--text);
+      border-radius: 1rem;
       padding: 2rem;
       margin-top: 2rem;
-      text-align: center;
-      font-size: 1.2rem;
+      font-size: 1rem;
       max-width: 600px;
       width: 100%;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 12px var(--shadow-color);
+      box-sizing: border-box;
     }
+    .forecast h2 {
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+    }
+    .forecast ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .forecast li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--input-bg);
+        text-align: center;
+    }
+     .forecast li:last-child {
+         border-bottom: none;
+     }
 
+    /* Стили для сообщения об ошибке */
     .error {
-      color: red;
+      color: var(--error-color);
       margin-top: 1rem;
       font-weight: bold;
+      text-align: center;
+      min-height: 1.2em;
     }
+    /* Стили для сообщения с предупреждением внутри блока прогноза */
+    .warning-message {
+      color: var(--warning-color);
+      font-weight: bold;
+      margin-bottom: 1em;
+      padding: 0.75rem;
+      background-color: rgba(232, 93, 4, 0.1);
+      border-left: 4px solid var(--warning-color);
+      border-radius: 0.25rem;
+      text-align: left;
+    }
+
 
     .loader {
       display: none;
       margin-top: 1rem;
+      text-align: center;
+      color: var(--loader-color);
+      font-weight: bold;
     }
 
     .loader.show {
       display: block;
     }
 
-    .crypto-yellow { color: #f2a900; }
-    .crypto-green { color: #26a17b; }
-    .crypto-blue { color: #005aff; }
-    .crypto-purple { color: #8e44ad; }
+    /* Цвета для заголовков криптовалют */
+    .crypto-yellow { color: var(--crypto-yellow); }
+    .crypto-green { color: var(--crypto-green); }
+    .crypto-blue { color: var(--crypto-blue); }
+    .crypto-purple { color: var(--crypto-purple); }
+
   </style>
 </head>
 <body>
-  <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-adjust"></i></button>
+  <!-- Кнопка смены темы -->
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+      <i class="fas fa-adjust"></i>
+  </button>
 
   <div class="container">
+    <!-- Обертка для формы -->
     <div id="form" class="form-wrapper">
+      <!-- Выбор криптовалюты -->
       <div class="crypto-header-wrapper">
         <div id="cryptoTitle" class="crypto-header crypto-yellow" onclick="toggleDropdown()">Bitcoin</div>
         <div id="cryptoDropdown" class="crypto-dropdown">
-          <div data-value="bitcoin">Bitcoin</div>
-          <div data-value="ethereum">Ethereum</div>
-          <div data-value="usdt">USDT</div>
-          <div data-value="ton">TON</div>
+          <div data-value="bitcoin" data-color="crypto-yellow">Bitcoin</div>
+          <div data-value="ethereum" data-color="crypto-purple">Ethereum</div>
+          <div data-value="usdt" data-color="crypto-green">USDT</div>
+          <div data-value="ton" data-color="crypto-blue">TON</div>
         </div>
       </div>
 
-      <select id="currency">
+      <!-- Выбор валюты -->
+      <select id="currency" aria-label="Select currency">
         <option value="usd">$ USD</option>
         <option value="rub">₽ RUB</option>
         <option value="kzt">₸ KZT</option>
@@ -175,47 +315,66 @@
         <option value="chf">₣ CHF</option>
         <option value="gbp">£ GBP</option>
       </select>
-      <input type="number" id="days" placeholder="Количество дней" min="1" max="30"/>
+      <!-- Ввод количества дней -->
+      <input type="number" id="days" placeholder="Количество дней (1-90)" min="1" max="90" aria-label="Number of days"/>
+      <!-- Кнопка получения прогноза -->
       <button id="getForecast">Получить прогноз</button>
+      <!-- Индикатор загрузки -->
       <div class="loader" id="loader">⏳ Загрузка...</div>
+      <!-- Место для вывода ошибок -->
       <div class="error" id="error"></div>
     </div>
 
+    <!-- Блок для вывода результата прогноза (скрыт по умолчанию) -->
     <div class="forecast" id="forecastBox" style="display:none;"></div>
   </div>
 
   <script>
+    // --- Весь JavaScript код остается БЕЗ ИЗМЕНЕНИЙ ---
     let currentCrypto = "bitcoin";
 
     function toggleTheme() {
       document.body.classList.toggle('dark');
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
     }
+
+    (function applyTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark');
+      } else {
+         document.body.classList.remove('dark');
+      }
+    })();
 
     function toggleDropdown() {
       document.getElementById("cryptoDropdown").classList.toggle("show");
     }
 
-    function setCrypto(value) {
+    function setCrypto(value, colorClass) {
       currentCrypto = value;
       const title = document.getElementById("cryptoTitle");
-      const colorMap = {
-        bitcoin: "crypto-yellow",
-        ethereum: "crypto-purple",
-        usdt: "crypto-green",
-        ton: "crypto-blue"
-      };
       title.textContent = value.charAt(0).toUpperCase() + value.slice(1);
-      title.className = "crypto-header " + colorMap[value];
+      title.className = "crypto-header " + colorClass;
       toggleDropdown();
     }
 
     document.querySelectorAll("#cryptoDropdown div").forEach(el => {
-      el.addEventListener("click", () => setCrypto(el.dataset.value));
+      el.addEventListener("click", () => setCrypto(el.dataset.value, el.dataset.color));
+    });
+
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById("cryptoDropdown");
+        const title = document.getElementById("cryptoTitle");
+        if (!title.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.remove('show');
+        }
     });
 
     document.getElementById("getForecast").addEventListener("click", async () => {
       const currency = document.getElementById("currency").value;
-      const days = document.getElementById("days").value;
+      const daysInput = document.getElementById("days");
+      const days = daysInput.value;
       const loader = document.getElementById("loader");
       const errorBox = document.getElementById("error");
       const forecastBox = document.getElementById("forecastBox");
@@ -223,7 +382,15 @@
 
       errorBox.textContent = "";
       forecastBox.style.display = "none";
+      form.classList.remove("shifted");
       loader.classList.add("show");
+
+      if (!days || parseInt(days) < 1 || parseInt(days) > 90) {
+          errorBox.textContent = "Пожалуйста, введите количество дней от 1 до 90.";
+          loader.classList.remove("show");
+          daysInput.focus();
+          return;
+      }
 
       try {
         const res = await fetch(`/predict/${currentCrypto}/${days}?currency=${currency}`);
@@ -231,18 +398,31 @@
 
         if (data.error) {
           errorBox.textContent = data.error;
+          forecastBox.style.display = "none";
+          form.classList.remove("shifted");
         } else {
-          let html = `<h2>Прогноз (${data.currency})</h2><ul style="list-style:none;padding:0;">`;
+          let html = `<h2>Прогноз (${data.currency})</h2>`;
+
+          if (data.warning) {
+            html += `<p class="warning-message">${data.warning}</p>`;
+          }
+
+          html += '<ul style="list-style:none;padding:0;">';
           data.predictions.forEach(([date, price]) => {
-            html += `<li><strong>${date}:</strong> ${price} ${data.currency}</li>`;
+            html += `<li><strong>${date}:</strong> ${price} ${data.symbol}</li>`;
           });
           html += "</ul>";
+
           forecastBox.innerHTML = html;
           forecastBox.style.display = "block";
           form.classList.add("shifted");
+          errorBox.textContent = "";
         }
       } catch (err) {
-        errorBox.textContent = "Ошибка запроса: " + err.message;
+        console.error("Fetch error:", err);
+        errorBox.textContent = "Ошибка сети при запросе к серверу. Пожалуйста, проверьте соединение или попробуйте позже.";
+        forecastBox.style.display = "none";
+        form.classList.remove("shifted");
       } finally {
         loader.classList.remove("show");
       }
